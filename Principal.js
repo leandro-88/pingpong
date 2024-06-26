@@ -102,13 +102,13 @@ function movimentaMinhaRaquete() {
   // Movimentação da raquete controlada pelo toque
   yRaquete = toqueY;
 
-  // Movimentação da raquete controlada pelas setas do teclado
-  if (keyIsDown(UP_ARROW)) {
-    yRaquete -= 10;
-  }
-  if (keyIsDown(DOWN_ARROW)) {
-    yRaquete += 10;
-  }
+  // Movimentação da raquete controlada pelas setas do teclado (opcional)
+  // if (keyIsDown(UP_ARROW)) {
+  //   yRaquete -= 10;
+  // }
+  // if (keyIsDown(DOWN_ARROW)) {
+  //   yRaquete += 10;
+  // }
 
   // Constrain para manter a raquete dentro dos limites
   yRaquete = constrain(yRaquete, 5, height - raqueteDiametro - 5);
