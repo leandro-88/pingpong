@@ -3,6 +3,7 @@ let somPonto;
 let somFundo;
 let imgRaquete;
 let imgRaqueteOponente;
+let imgLataCerveja; // Nova variável para a imagem da lata de cerveja
 let toqueY;
 
 let chanceDeErrar = 0;
@@ -10,12 +11,12 @@ let chanceDeErrar = 0;
 // Variáveis da bolinha
 let xBolinha = 400;
 let yBolinha = 300;
-let diametro = 20;
-let raio = diametro / 2;
+let diametroBolinha = 70; // Aumentei o diâmetro da bolinha
+let raioBolinha = diametroBolinha / 2;
 
 // Velocidade da bolinha
-let velocidadeXBolinha = 6;
-let velocidadeYBolinha = 6;
+let velocidadeXBolinha = 5;
+let velocidadeYBolinha = 5;
 let raqueteDiametro = 120;  // Ajuste o tamanho da raquete
 let raqueteRaio = raqueteDiametro / 2;
 
@@ -38,6 +39,7 @@ function preload() {
   // Carregando as imagens e sons
   imgRaquete = loadImage('Thadeu.png');  // Imagem da sua raquete
   imgRaqueteOponente = loadImage('Lucca.png');  // Imagem da raquete do oponente
+  imgLataCerveja = loadImage('cerveja.png');  // Imagem da lata de cerveja
   somColisao = loadSound('colisao.mp3');
   somPonto = loadSound('ponto.mp3');
   somFundo = loadSound('fundo.mp3');
@@ -56,7 +58,7 @@ function setup() {
 
 function draw() {
   background(0);
-  mostraBolinha();
+  mostraLataCerveja();  // Mostra a lata de cerveja ao invés da bolinha
   movimentaBolinha();
   verificaColisaoBorda();
   mostraRaquete(xRaquete, yRaquete, imgRaquete);  // Sua raquete
@@ -69,8 +71,8 @@ function draw() {
   marcaPonto();
 }
 
-function mostraBolinha() {
-  circle(xBolinha, yBolinha, diametro);
+function mostraLataCerveja() {
+  image(imgLataCerveja, xBolinha, yBolinha, diametroBolinha, diametroBolinha);
 }
 
 function movimentaBolinha() {
@@ -79,13 +81,31 @@ function movimentaBolinha() {
 }
 
 function verificaColisaoBorda() {
-  if (xBolinha + raio > width || xBolinha - raio < 0) {
-    velocidadeXBolinha *= -1;
-    somColisao.play();
-  }
-  if (yBolinha + raio > height || yBolinha - raio < 0) {
+  if (yBolinha + raioBolinha > height || yBolinha - raioBolinha < 0) {
     velocidadeYBolinha *= -1;
     somColisao.play();
+  }
+
+  if (xBolinha + raioBolinha > width) {
+    meusPontos += 1;
+    somPonto.play();
+    reiniciaBolinha();
+  } else if (xBolinha - raioBolinha < 0) {
+    pontosDoOponente += 1;
+    somPonto.play();
+    reiniciaBolinha();
+  } else if (xBolinha + raioBolinha > width || xBolinha - raioBolinha < 0) {
+    // Aumenta a velocidade se a bolinha tocar a borda sem marcar ponto
+    if (velocidadeXBolinha > 0) {
+      velocidadeXBolinha += 0.5;
+    } else {
+      velocidadeXBolinha -= 0.5;
+    }
+    if (velocidadeYBolinha > 0) {
+      velocidadeYBolinha += 0.5;
+    } else {
+      velocidadeYBolinha -= 0.5;
+    }
   }
 }
 
@@ -115,7 +135,7 @@ function movimentaMinhaRaquete() {
 }
 
 function verificaColisaoRaquete(x, y) {
-  colidiu = collideRectCircle(x, y, raqueteDiametro, raqueteDiametro, xBolinha, yBolinha, diametro);
+  colidiu = collideCircleCircle(x + raqueteRaio - 50, y + raqueteRaio -10, raqueteDiametro, xBolinha, yBolinha, diametroBolinha);
   if (colidiu) {
     velocidadeXBolinha *= -1;
     somColisao.play();
@@ -147,26 +167,20 @@ function incluiPlacar() {
   
   // Nome da raquete fora do retângulo
   textAlign(CENTER);
-  text("Thadeu", width / 4, 50); // Ajuste a posição conforme necessário
-  text("Lucca", 3 * width / 4, 50); // Ajuste a posição conforme necessário
+  text("Véi da Bike", width / 4, 50); // Ajuste a posição conforme necessário
+  text("Nega", 3 * width / 4, 50); // Ajuste a posição conforme necessário
 }
 
 function marcaPonto() {
-  if (xBolinha > 791) {
-    // Verifica se a bolinha está atrás da raquete do oponente
-    if (yBolinha > yRaqueteOponente + raqueteRaio || yBolinha < yRaqueteOponente - raqueteRaio) {
-      meusPontos += 1;
-      somPonto.play();
-      reiniciaBolinha();
-    }
-  }
-  if (xBolinha < 9) {
-    // Verifica se a bolinha está atrás da sua raquete
-    if (yBolinha > yRaquete + raqueteRaio || yBolinha < yRaquete - raqueteRaio) {
-      pontosDoOponente += 1;
-      somPonto.play();
-      reiniciaBolinha();
-    }
+  // Marca ponto quando a lata de cerveja atinge a borda final
+  if (xBolinha + raioBolinha > width) {
+    meusPontos += 1;
+    somPonto.play();
+    reiniciaBolinha();
+  } else if (xBolinha - raioBolinha < 0) {
+    pontosDoOponente += 1;
+    somPonto.play();
+    reiniciaBolinha();
   }
 }
 
@@ -191,6 +205,7 @@ function calculaChanceDeErrar() {
 }
 
 function mousePressed() {
-  // Atualiza a posição do toque no eixo Y
-  toqueY = mouseY;
+  // Atualiza a posição da raquete com base na posição do clique
+  toqueY = mouseY - raqueteRaio; // Ajuste para centralizar a raquete na posição do clique
+  yRaquete = constrain(toqueY, 5, height - raqueteDiametro - 5); // Garante que a raquete fique dentro dos limites
 }
