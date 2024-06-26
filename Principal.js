@@ -167,8 +167,8 @@ function incluiPlacar() {
   
   // Nome da raquete fora do retângulo
   textAlign(CENTER);
-  text("Véi da Bike", width / 4, 50); // Ajuste a posição conforme necessário
-  text("Nega", 3 * width / 4, 50); // Ajuste a posição conforme necessário
+  text("Thadeu", width / 4, 50); // Ajuste a posição conforme necessário
+  text("Lucca", 3 * width / 4, 50); // Ajuste a posição conforme necessário
 }
 
 function marcaPonto() {
